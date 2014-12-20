@@ -177,7 +177,8 @@
             if (!(node is ContainerElement))
                 return node;
             var element = node as ContainerElement;
-            
+            if (!element.HasEndTag)
+                return element;            
             
             var endTag =   string.Format("[/{0}]", element.NodeName);
 
@@ -319,6 +320,12 @@
                     //throw new Exception("ListItem should not be called here");
                 case "li":
                     return new ListItemElement(name);
+                case "check":
+                    return new DingbatElement("&#x274F;");
+                case "check-on":
+                    return new DingbatElement("<big>&#9745;</big>");
+                case "hr":
+                    return new NoEndTagElement("hr");
 
             }
             return null;

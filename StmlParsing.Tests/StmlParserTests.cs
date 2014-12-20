@@ -266,6 +266,25 @@ This is a line after";
             Assert.AreEqual(expected, actual);
         }
 
+        [Test]
+        public void Can_parse_checkboxes()
+        {
+            const string input = @"Please select an option below:
+    [check]This is option 1
+    [check-on]This is option 2
+    [hr]    
+    and it continues here
+";
+            const string expected = @"Please select an option below:
+    <font face=""ZapfDingbats"">&#x274F;</font>This is option 1
+    <font face=""ZapfDingbats""><big>&#9745;</big></font>This is option 2
+    <hr/>    
+    and it continues here";
+            var actual = StmlParser.Parse(input, true).ToString();
+            //System.IO.File.WriteAllText(@"C:\temp\tests\simple.htm", actual);
+            Assert.AreEqual(expected, actual);
+        }
+
     }
 
 }

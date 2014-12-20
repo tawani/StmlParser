@@ -9,6 +9,11 @@
         public StmlNode Parent { get; set; }
         public StmlNode PrevNode { get; set; }
         public StmlNode NextNode { get; set; }
+
+        public virtual bool HasEndTag
+        {
+            get { return true; }
+        }
     }
 
     public class TextElement : StmlNode
@@ -26,15 +31,15 @@
         }
     }
 
-    public interface IEmptyElement
-    {
-        
-    }
-
     public abstract class ContainerElement : StmlNode
     {
         public string NodeName { get; private set; }
         public string TagName { get; private set; }
+
+        public virtual bool SupportsContent
+        {
+            get { return true; }
+        }
 
         public List<StmlNode> ChildNodes { get; set; }
 
@@ -73,7 +78,7 @@
 
             if (!string.IsNullOrEmpty(TagName))
             {
-                if (ChildNodes.Count == 0 || this is IEmptyElement)
+                if (ChildNodes.Count == 0 || !this.SupportsContent)
                 {
                     sb.Append("/>");
                     return sb.ToString();
@@ -147,6 +152,46 @@
         }
     }
 
+    public class NoEndTagElement : StmlNode
+    {
+        private readonly string _tagName;
+
+        public override bool HasEndTag
+        {
+            get { return false; }
+        }
+
+        public NoEndTagElement(string tagName)
+        {
+            _tagName = tagName;            
+        }
+
+        public override string ToString()
+        {
+            return string.Format("<{0}/>", _tagName);
+        }
+    }
+
+    public class DingbatElement : StmlNode
+    {
+        public override bool HasEndTag
+        {
+            get { return false; }
+        }
+
+        public string Text { get; set; }
+        public DingbatElement(string text)
+            
+        {
+            Text = text;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("<font face=\"ZapfDingbats\">{0}</font>", Text);
+        }
+    }
+
     public class LinkElement : TextContainerElement
     {
         public string Url { get; set; }
@@ -188,8 +233,13 @@
         }
     }
 
-    public class ImageElement : TextContainerElement, IEmptyElement
+    public class ImageElement : TextContainerElement
     {
+        public override bool SupportsContent
+        {
+            get { return false; }
+        }
+
         public string Url { get; set; }
         public ImageElement(string nodeName, string url)
             : base(nodeName, "img")
