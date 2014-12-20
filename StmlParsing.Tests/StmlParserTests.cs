@@ -195,7 +195,7 @@ This is a line after";
         <ol><li>This is line 2.1</li><li>This is line 2.2</li><li>This is line 2.3
     and it continues here</li></ol></li><li>This is line 3</li></ol>";
             var actual = StmlParser.Parse(input, true).ToString();
-            System.IO.File.WriteAllText(@"C:\temp\tests\simple.htm", actual);
+            //System.IO.File.WriteAllText(@"C:\temp\tests\simple.htm", actual);
             Assert.AreEqual(expected, actual);
         }
 
@@ -218,7 +218,7 @@ This is a line after";
         <ul><li>This is line 2.1</li><li>This is line 2.2</li><li>This is line 2.3
     and it continues here</li></ul></li><li>This is line 3</li></ul>";
             var actual = StmlParser.Parse(input, true).ToString();
-            System.IO.File.WriteAllText(@"C:\temp\tests\simple.htm", actual);
+            //System.IO.File.WriteAllText(@"C:\temp\tests\simple.htm", actual);
             Assert.AreEqual(expected, actual);
         }
 
