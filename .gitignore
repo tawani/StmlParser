@@ -2,6 +2,14 @@
 Thumbs.db
 ehthumbs.db
 
+StmlParsing/bin/
+StmlParsing/obj/
+StmlParsing.Tests/bin/
+StmlParsing.Tests/obj/
+StmlDemoDriver/bin/
+StmlDemoDriver/obj/
+
+
 # Folder config file
 Desktop.ini
 
