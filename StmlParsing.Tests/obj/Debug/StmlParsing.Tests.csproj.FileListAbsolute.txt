@@ -1,9 +1,0 @@
-C:\Users\Tawani\Documents\GitHub\StmlParsing\StmlParsing.Tests\bin\Debug\StmlParsing.Tests.dll
-C:\Users\Tawani\Documents\GitHub\StmlParsing\StmlParsing.Tests\bin\Debug\StmlParsing.Tests.pdb
-C:\Users\Tawani\Documents\GitHub\StmlParsing\StmlParsing.Tests\bin\Debug\nunit.framework.dll
-C:\Users\Tawani\Documents\GitHub\StmlParsing\StmlParsing.Tests\bin\Debug\StmlParsing.dll
-C:\Users\Tawani\Documents\GitHub\StmlParsing\StmlParsing.Tests\bin\Debug\StmlParsing.pdb
-C:\Users\Tawani\Documents\GitHub\StmlParsing\StmlParsing.Tests\bin\Debug\nunit.framework.xml
-C:\Users\Tawani\Documents\GitHub\StmlParsing\StmlParsing.Tests\obj\Debug\StmlParsing.Tests.csprojResolveAssemblyReference.cache
-C:\Users\Tawani\Documents\GitHub\StmlParsing\StmlParsing.Tests\obj\Debug\StmlParsing.Tests.dll
-C:\Users\Tawani\Documents\GitHub\StmlParsing\StmlParsing.Tests\obj\Debug\StmlParsing.Tests.pdb

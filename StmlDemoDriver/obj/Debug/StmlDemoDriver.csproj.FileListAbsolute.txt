@@ -1,9 +1,0 @@
-C:\Users\Tawani\Documents\GitHub\StmlParsing\StmlDemoDriver\bin\Debug\sample.txt
-C:\Users\Tawani\Documents\GitHub\StmlParsing\StmlDemoDriver\bin\Debug\sample2.txt
-C:\Users\Tawani\Documents\GitHub\StmlParsing\StmlDemoDriver\bin\Debug\StmlDemoDriver.exe
-C:\Users\Tawani\Documents\GitHub\StmlParsing\StmlDemoDriver\bin\Debug\StmlDemoDriver.pdb
-C:\Users\Tawani\Documents\GitHub\StmlParsing\StmlDemoDriver\bin\Debug\StmlParsing.dll
-C:\Users\Tawani\Documents\GitHub\StmlParsing\StmlDemoDriver\bin\Debug\StmlParsing.pdb
-C:\Users\Tawani\Documents\GitHub\StmlParsing\StmlDemoDriver\obj\Debug\StmlDemoDriver.csprojResolveAssemblyReference.cache
-C:\Users\Tawani\Documents\GitHub\StmlParsing\StmlDemoDriver\obj\Debug\StmlDemoDriver.exe
-C:\Users\Tawani\Documents\GitHub\StmlParsing\StmlDemoDriver\obj\Debug\StmlDemoDriver.pdb

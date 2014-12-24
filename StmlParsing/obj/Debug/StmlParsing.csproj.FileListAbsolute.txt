@@ -1,4 +1,0 @@
-C:\Users\Tawani\Documents\GitHub\StmlParsing\StmlParsing\bin\Debug\StmlParsing.dll
-C:\Users\Tawani\Documents\GitHub\StmlParsing\StmlParsing\bin\Debug\StmlParsing.pdb
-C:\Users\Tawani\Documents\GitHub\StmlParsing\StmlParsing\obj\Debug\StmlParsing.dll
-C:\Users\Tawani\Documents\GitHub\StmlParsing\StmlParsing\obj\Debug\StmlParsing.pdb
