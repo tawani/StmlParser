@@ -9,11 +9,6 @@
         public StmlNode Parent { get; set; }
         public StmlNode PrevNode { get; set; }
         public StmlNode NextNode { get; set; }
-
-        public virtual bool HasEndTag
-        {
-            get { return true; }
-        }
     }
 
     public class TextElement : StmlNode
@@ -156,11 +151,6 @@
     {
         private readonly string _tagName;
 
-        public override bool HasEndTag
-        {
-            get { return false; }
-        }
-
         public NoEndTagElement(string tagName)
         {
             _tagName = tagName;            
@@ -174,14 +164,8 @@
 
     public class DingbatElement : StmlNode
     {
-        public override bool HasEndTag
-        {
-            get { return false; }
-        }
-
         public string Text { get; set; }
-        public DingbatElement(string text)
-            
+        public DingbatElement(string text)          
         {
             Text = text;
         }

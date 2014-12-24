@@ -13,7 +13,8 @@
                 str = RemoveLineBreaks(str);
 
             var root = new TextContainerElement(null);
-            AddNodes(root, str);
+            var start = -1;
+            AddNodes(root, str, ref start);
             var result = root.ChildNodes.Count == 1 ? root.ChildNodes[0] : root;
 
             return result;
@@ -51,10 +52,11 @@
             return text;
         }
 
-        private static void AddNodes(ContainerElement parent, string stml)
+
+        private static void AddNodes(ContainerElement current, string stml, ref int startIndex)
         {
             var len = stml.Length;
-            var i = -1;
+            var i = startIndex;
             var text = "";
             while (i < len - 1)
             {
@@ -72,183 +74,100 @@
                     if (stop < i)
                         continue;
 
-                    var node = CreateNode(stml, start, ref stop);
+                    //check if this is the end tag
+                    var endNodeTag = stml.Substring(i, stop - i + 1).Replace(" ", "");
+                    if (current.NodeName == "#")
+                    {
+                        if (endNodeTag == "[#]" || endNodeTag == "[/olist]" || endNodeTag == "[/ulist]")
+                        {
+                            current.Add(new TextElement(text.TrimEnd()));
+                            var itemNode = CreateNode(current.Parent as ListElement, stml, start, ref stop);
+
+                            startIndex = stop;
+                            return;
+                        }
+                    }
+                    else if (current.NodeName == "olist" || current.NodeName == "ulist")
+                    {
+                        if (endNodeTag == "[/olist]" || endNodeTag == "[/ulist]")
+                        {
+                            if (!string.IsNullOrWhiteSpace(text) && current.Parent is ContainerElement)
+                                (current.Parent as ContainerElement).Add(new TextElement(text.TrimEnd()));
+
+                            startIndex = stop;
+                            return;
+                        }
+                        else if (endNodeTag == "[#]")
+                        {
+                            //if (!string.IsNullOrWhiteSpace(text) && current.Parent is ContainerElement)
+                            //    (current.Parent as ContainerElement).Add(new TextElement(text.TrimEnd()));
+
+                            var itemNode = CreateNode(current as ListElement, stml, start, ref stop);
+                            startIndex = stop;
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        if (endNodeTag == string.Format("[/{0}]", current.NodeName))
+                        {
+                            if (current is ListElement)
+                            {
+                                //add text to parent of list container 
+                                if (!string.IsNullOrWhiteSpace(text) && current.Parent is ContainerElement)
+                                    (current.Parent as ContainerElement).Add(new TextElement(text.TrimEnd()));
+                            }
+                            else
+                                current.Add(new TextElement(text));
+                            startIndex = stop;
+                            return;
+                        }
+                    }
+
+                    var node = CreateNode(current, stml, start, ref stop);
                     if (node != null)
                     {
                         //add the previous node first
-                        parent.Add(new TextElement(text));
+                        if (current is ListElement)
+                        {
+                            //add text to parent of list container 
+                            if (!string.IsNullOrWhiteSpace(text) && current.Parent is ContainerElement)
+                                (current.Parent as ContainerElement).Add(new TextElement(text.Trim()));
+                        }
+                        else
+                            current.Add(new TextElement(text));
                         text = "";
 
-                        parent.Add(node);
+                        current.Add(node);
                         i = stop;
 
                         continue;
-                    }                 
+                    }
                 }
 
                 text += s;
+                startIndex = i;
             }
 
-            parent.Add(new TextElement(text));
+            current.Add(new TextElement(text));
         }
 
-        //private static void AddListNodes(ListElement parent, string stml)
-        //{
-        //    if (stml.Contains("[olist") || stml.Contains("[ulist"))
-        //        AddListNodes2(parent, stml);
 
-        //    var arr = stml.Trim().Split(new[] { "[#]" }, StringSplitOptions.RemoveEmptyEntries);
-        //    foreach (var str in arr)
-        //    {
-        //        var element = new ListItemElement();
-        //        AddNodes(element, str.Trim());
-        //        parent.Add(element);
-        //    }
-        //}
-
-        private static void AddListNodes(ListElement parent, string stml)
-        {
-            var str = stml.Trim();
-            var len = str.Length;
-            if (len == 0)
-                return;
-
-            var ist = str.IndexOf("[#]", StringComparison.InvariantCultureIgnoreCase);
-            while (ist > -1 && ist < len)
-            {
-                var ien = str.IndexOf("[#]", ist + 1, StringComparison.InvariantCultureIgnoreCase);
-                //if (ien == -1)
-                //    ien = str.IndexOf("[/" + parent.NodeName + "]", ist + 1, StringComparison.InvariantCultureIgnoreCase);
-                if (ien == -1)
-                    ien = len;
-
-                var tmp = str.Substring(ist, ien - ist);
-
-                var count1 = CountSameInnerTags(tmp, "olist");
-                if (count1 > 0)
-                {
-                    ien = GetStopIndex(str, "olist", count1, ien);
-                    var ien2 = str.IndexOf("[#]", ien, StringComparison.InvariantCultureIgnoreCase);
-                    if (ien2 > 0)
-                        ien = ien2;
-                    else if (ien < len)
-                    {
-                        ien2 = str.IndexOf("[/olist]", ien + 1, StringComparison.InvariantCultureIgnoreCase);
-                        if (ien2 < 0)
-                            ien = len;
-                    }
-                    if (ien == len)
-                        tmp = stml.Substring(ist);
-                    else
-                        tmp = stml.Substring(ist, ien - ist);
-                }
-
-                var count2 = CountSameInnerTags(tmp, "ulist");
-                if (count2 > 0)
-                {
-                    ien = GetStopIndex(str, "ulist", count2, ien);
-                    var ien2 = str.IndexOf("[#]", ien, StringComparison.InvariantCultureIgnoreCase);
-                    if (ien2 > 0)
-                        ien = ien2;
-                    else if (ien < len)
-                    {
-                        ien2 = str.IndexOf("[/ulist]", ien+1, StringComparison.InvariantCultureIgnoreCase);
-                        if (ien2 < 0)
-                            ien = len;
-                    }
-                    if (ien == len)
-                        tmp = stml.Substring(ist);
-                    else
-                        tmp = stml.Substring(ist, ien - ist);
-                }
-
-                var element = new ListItemElement();
-                AddNodes(element, tmp.Trim().Substring(3));
-                parent.Add(element);
-
-                ist =  ien;
-            }
-        }
-
-        private static StmlNode CreateNode(string stml, int start, ref int stop)
+        private static StmlNode CreateNode(ContainerElement parent, string stml, int start, ref int stop)
         {
             var fragment = stml.Substring(start, stop - start);
-            var node = CreateNode(fragment.Trim());
+            var node = CreateNode(parent, fragment.Trim());
             if (!(node is ContainerElement))
                 return node;
             var element = node as ContainerElement;
-            if (!element.HasEndTag)
-                return element;            
-            
-            var endTag =   string.Format("[/{0}]", element.NodeName);
 
-            var ist = stop + 1;
-            var ien = stml.IndexOf(endTag, ist, StringComparison.InvariantCultureIgnoreCase);
+            AddNodes(element, stml, ref stop);
 
-            if (ien < 0)
-                ien = stml.Length;
-
-            var tmp = stml.Substring(ist, ien - ist);
-
-            //find the actual closing node
-            var count = CountSameInnerTags(tmp, element.NodeName);
-            if (count > 0)
-            {
-                ien = GetStopIndex(stml, element.NodeName,count,ien);
-                tmp = stml.Substring(ist, ien - ist);
-            }
-            if(element is ListElement && element.NodeName.EndsWith("list"))
-                AddListNodes(element as ListElement, tmp);
-            else 
-                AddNodes(element, tmp);
-
-            stop = ien + endTag.Length - 1;
             return element;
         }
 
-        private static int CountSameInnerTags(string fragment, string nodeName)
-        {
-            var startTag1 = string.Format("[{0}]", nodeName);
-            var startTag2 = string.Format("[{0}=", nodeName);
-            var startTag3 = string.Format("[{0} ", nodeName);
 
-            if (!(fragment.Contains(startTag1) || fragment.Contains(startTag2) || fragment.Contains(startTag3)))
-                return 0;
-
-            var count = CountOccurences(startTag1, fragment);
-            count += CountOccurences(startTag2, fragment);
-            count += CountOccurences(startTag3, fragment);
-            return count;
-        }
-
-        static int CountOccurences(string needle, string haystack)
-        {
-            return (haystack.Length - haystack.Replace(needle, "").Length) / needle.Length;
-        }
-
-        private static int GetStopIndex(string stml, string nodeName, int skip, int startIndex)
-        {
-            var endTag = string.Format("[/{0}]", nodeName);
-            
-            var len = stml.Length;
-            var stopIndex = stml.IndexOf(endTag, startIndex,StringComparison.InvariantCultureIgnoreCase);
-            if (stopIndex == -1)
-                stopIndex = len;
-            while (stopIndex < len && skip > 0)
-            {
-
-                var ist = stopIndex + endTag.Length;
-                var nextStopIndex = stml.IndexOf(endTag, ist, StringComparison.InvariantCultureIgnoreCase);
-                if (nextStopIndex < 0)
-                    break;
-                stopIndex = nextStopIndex;
-
-                skip--;
-            }
-            return stopIndex;
-        }
-
-        private static StmlNode CreateNode(string fragment)
+        private static StmlNode CreateNode(ContainerElement parent, string fragment)
         {
             //verify if this is a valid node
             if (fragment.Contains("[") || fragment.Contains("]"))
@@ -263,10 +182,10 @@
                 name = fragment.Substring(0, ix).Trim();
                 args = fragment.Substring(ix + 1).Trim();
             }
-            return  CreateElement(name.ToLower(),args);
+            return CreateElement(parent, name.ToLower(), args);
         }
 
-        private static StmlNode CreateElement(string name, string args)
+        private static StmlNode CreateElement(ContainerElement parent, string name, string args)
         {
             switch (name)
             {
@@ -316,8 +235,10 @@
                 case "olist":
                     return new ListElement(name, args);
                 case "#":
+                    if (parent is ListElement)
+                        return parent.Add(new ListItemElement());
                     return null;
-                    //throw new Exception("ListItem should not be called here");
+                //throw new Exception("ListItem should not be called here");
                 case "li":
                     return new ListItemElement(name);
                 case "check":

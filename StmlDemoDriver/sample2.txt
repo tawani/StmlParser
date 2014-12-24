@@ -10,11 +10,11 @@ This is a simple [b]bold[/b], [i]italic[/i], [u]underline[/u]
 				[#]This is [orange]orange[/orange] line 2.1.1
 				[#]This is [green]green[/green] line 2.1.2
 				[#]This is [red]red[/red] line 2.1.3
-		and it continues here
+and it continues here
 			[/ulist]
             [#]This is [green]green[/green] line 2.2
             [#]This is [red]red[/red] line 2.3
-    and it continues here
+and it continues here
         [/olist]
     [#]This is line 3
 [/olist]

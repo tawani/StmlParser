@@ -273,13 +273,13 @@ This is a line after";
     [check]This is option 1
     [check-on]This is option 2
     [hr]    
-    and it continues here
+    and it [red]continues[/red] here
 ";
             const string expected = @"Please select an option below:
     <font face=""ZapfDingbats"">&#x274F;</font>This is option 1
     <font face=""ZapfDingbats""><big>&#9745;</big></font>This is option 2
     <hr/>    
-    and it continues here";
+    and it <font color=""red"">continues</font> here";
             var actual = StmlParser.Parse(input, true).ToString();
             //System.IO.File.WriteAllText(@"C:\temp\tests\simple.htm", actual);
             Assert.AreEqual(expected, actual);
