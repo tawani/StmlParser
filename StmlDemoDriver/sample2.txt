@@ -4,7 +4,7 @@ This is a simple [b]bold[/b], [i]italic[/i], [u]underline[/u]
 [olist]
     [#]This is line 1
     [#]This is line 2
-        [olist=a]
+		[olist=a]
             [#]This is [orange]orange[/orange] line 2.1
 			[ulist=square]
 				[#]This is [orange]orange[/orange] line 2.1.1

@@ -1,57 +1,52 @@
 ﻿namespace StmlParsing
 {
     using System;
+    using System.Collections.Generic;
 
     public class StmlParser
     {
-        public static StmlNode Parse(string text, bool removeBlockLineBreaks = false)
+        public static StmlNode Parse(string text, bool removeFormattingLineBreaks = true)
         {
             var str = text.Trim();
-
-            //HACK: Simple fix for now
-            if (removeBlockLineBreaks)
-                str = RemoveLineBreaks(str);
 
             var root = new TextContainerElement(null);
             var start = -1;
             AddNodes(root, str, ref start);
+
+            if (removeFormattingLineBreaks)
+                RemoveFormattingLineBreaks(root.ChildNodes);
             var result = root.ChildNodes.Count == 1 ? root.ChildNodes[0] : root;
 
             return result;
         }
 
-        private static string RemoveLineBreaks(string text)
+        private static void RemoveFormattingLineBreaks(List<StmlNode> nodes)
         {
-            text = text.Replace("center]\r\n", "center]")
-                       .Replace("li]\r\n", "li]")
-                       .Replace("ol]\r\n", "ol]")
-                       .Replace("ul]\r\n", "ul]")
-                       .Replace("center]\n", "center]")
-                       .Replace("li]\n", "li]")
-                       .Replace("ol]\n", "ol]")
-                       .Replace("ul]\n", "ul]")
+            foreach (var node in nodes)
+            {
+                if (node is BlockElement || node is ListElement)
+                {
+                    if (node.PrevNode is TextElement)
+                    {
+                        var textNode = node.PrevNode as TextElement;
+                        if (string.IsNullOrWhiteSpace(textNode.Text))
+                            textNode.Text = string.Empty;
+                        else if (textNode.Text.EndsWith("\n") || textNode.Text.EndsWith("\t"))
+                            textNode.Text = textNode.Text.TrimEnd();
+                    }
+                }else if (node is TextElement && node.NextNode == null)
+                {
+                    if (node.PrevNode is BlockElement || node.PrevNode is ListElement)
+                    {
+                        var textNode = node as TextElement;
+                        textNode.Text = textNode.Text.TrimStart();
+                    }
+                }
 
-                       .Replace("h1]\r\n", "h1]")
-                       .Replace("h2]\r\n", "h2]")
-                       .Replace("h3]\r\n", "h3]")
-                       .Replace("h4]\r\n", "h4]")
-                       .Replace("h1]\n", "h1]")
-                       .Replace("h2]\n", "h2]")
-                       .Replace("h3]\n", "h3]")
-                       .Replace("h4]\n", "h4]")
-
-                       .Replace("\r\n[h1]", "[h1]")
-                       .Replace("\r\n[h2]", "[h2]")
-                       .Replace("\r\n[h3]", "[h3]")
-                       .Replace("\r\n[h4]", "[h4]")
-                       .Replace("\n[h1]", "[h1]")
-                       .Replace("\n[h2]", "[h2]")
-                       .Replace("\n[h3]", "[h3]")
-                       .Replace("\n[h4]", "[h4]")
-                       ;
-            return text;
-        }
-
+                if (node is ContainerElement)
+                    RemoveFormattingLineBreaks((node as ContainerElement).ChildNodes);
+            }
+        }      
 
         private static void AddNodes(ContainerElement current, string stml, ref int startIndex)
         {
@@ -91,17 +86,11 @@
                     {
                         if (endNodeTag == "[/olist]" || endNodeTag == "[/ulist]")
                         {
-                            if (!string.IsNullOrWhiteSpace(text) && current.Parent is ContainerElement)
-                                (current.Parent as ContainerElement).Add(new TextElement(text.TrimEnd()));
-
                             startIndex = stop;
                             return;
                         }
                         else if (endNodeTag == "[#]")
                         {
-                            //if (!string.IsNullOrWhiteSpace(text) && current.Parent is ContainerElement)
-                            //    (current.Parent as ContainerElement).Add(new TextElement(text.TrimEnd()));
-
                             var itemNode = CreateNode(current as ListElement, stml, start, ref stop);
                             startIndex = stop;
                             return;
@@ -111,14 +100,7 @@
                     {
                         if (endNodeTag == string.Format("[/{0}]", current.NodeName))
                         {
-                            if (current is ListElement)
-                            {
-                                //add text to parent of list container 
-                                if (!string.IsNullOrWhiteSpace(text) && current.Parent is ContainerElement)
-                                    (current.Parent as ContainerElement).Add(new TextElement(text.TrimEnd()));
-                            }
-                            else
-                                current.Add(new TextElement(text));
+                            current.Add(new TextElement(text));
                             startIndex = stop;
                             return;
                         }
@@ -127,15 +109,7 @@
                     var node = CreateNode(current, stml, start, ref stop);
                     if (node != null)
                     {
-                        //add the previous node first
-                        if (current is ListElement)
-                        {
-                            //add text to parent of list container 
-                            if (!string.IsNullOrWhiteSpace(text) && current.Parent is ContainerElement)
-                                (current.Parent as ContainerElement).Add(new TextElement(text.Trim()));
-                        }
-                        else
-                            current.Add(new TextElement(text));
+                        current.Add(new TextElement(text));
                         text = "";
 
                         current.Add(node);
@@ -201,15 +175,18 @@
                 case "dir":
                 case "center":
                 case "big":
-                case "blockquote":
-                case "pre":
                 case "code":
+                    return new TextContainerElement(name);
+                case "quote":
+                    return new BlockElement(name,"blockquote");
+                case "blockquote":
+                case "pre":                
                 case "h1":
                 case "h2":
                 case "h3":
                 case "h4":
                 case "h5":
-                    return new TextContainerElement(name);
+                    return new BlockElement(name);
                 case "red":
                 case "green":
                 case "blue":
@@ -247,6 +224,11 @@
                     return new DingbatElement("<big>&#9745;</big>");
                 case "hr":
                     return new NoEndTagElement("hr");
+                case "page-break":
+                    return new PageBreakElement();
+                case "br":
+                case "line-break":
+                    return new NoEndTagElement("br");
 
             }
             return null;

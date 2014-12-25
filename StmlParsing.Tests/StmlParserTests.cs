@@ -131,9 +131,7 @@ namespace StmlParsing.Tests
    [#]This is line 3
 [/olist]
 This is a line after";
-            const string expected = @"This is an <b>Ordered</b> list
-<ol><li>This is line 1</li><li>This is line 2</li><li>This is line 3</li></ol>
-This is a line after";
+            const string expected = @"This is an <b>Ordered</b> list<ol><li>This is line 1</li><li>This is line 2</li><li>This is line 3</li></ol>This is a line after";
             var actual = StmlParser.Parse(input).ToString();
 
             Assert.AreEqual(expected, actual);
@@ -149,9 +147,7 @@ This is a line after";
    [#]This is line 3
 [/ulist]
 This is a line after";
-            const string expected = @"This is an <b>Ordered</b> list
-<ul><li>This is line 1</li><li>This is line 2</li><li>This is line 3</li></ul>
-This is a line after";
+            const string expected = @"This is an <b>Ordered</b> list<ul><li>This is line 1</li><li>This is line 2</li><li>This is line 3</li></ul>This is a line after";
             var actual = StmlParser.Parse(input).ToString();
             //System.IO.File.WriteAllText(@"C:\temp\tests\simple.htm", actual1);
             Assert.AreEqual(expected, actual);
@@ -194,7 +190,7 @@ This is a line after";
             const string expected = @"<ol><li>This is line 1</li><li>This is line 2
         <ol><li>This is line 2.1</li><li>This is line 2.2</li><li>This is line 2.3
     and it continues here</li></ol></li><li>This is line 3</li></ol>";
-            var actual = StmlParser.Parse(input, true).ToString();
+            var actual = StmlParser.Parse(input, false).ToString();
             //System.IO.File.WriteAllText(@"C:\temp\tests\simple.htm", actual);
             Assert.AreEqual(expected, actual);
         }
@@ -217,7 +213,7 @@ This is a line after";
             const string expected = @"<ul><li>This is line 1</li><li>This is line 2
         <ul><li>This is line 2.1</li><li>This is line 2.2</li><li>This is line 2.3
     and it continues here</li></ul></li><li>This is line 3</li></ul>";
-            var actual = StmlParser.Parse(input, true).ToString();
+            var actual = StmlParser.Parse(input, false).ToString();
             //System.IO.File.WriteAllText(@"C:\temp\tests\simple.htm", actual);
             Assert.AreEqual(expected, actual);
         }
@@ -239,7 +235,21 @@ This is a line after";
             const string expected = @"<ul><li>This is line 1</li><li>This is line 2
         <ul><li>This is line 2.1</li><li>This is line 2.2</li><li>This is line 2.3
     and it continues here</li></ul></li></ul>";
-            var actual = StmlParser.Parse(input, true).ToString();
+            var actual = StmlParser.Parse(input, false).ToString();
+            //System.IO.File.WriteAllText(@"C:\temp\tests\simple.htm", actual);
+            Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public void Text_within_listcontainer_is_ignored_element()
+        {
+            const string input = @"This [ulist] is <b>ignored</b> 
+    [#]This is line 1
+    [#]This is line 2        
+[/ulist]
+";
+            const string expected = @"This <ul><li>This is line 1</li><li>This is line 2</li></ul>";
+            var actual = StmlParser.Parse(input).ToString();
             //System.IO.File.WriteAllText(@"C:\temp\tests\simple.htm", actual);
             Assert.AreEqual(expected, actual);
         }
@@ -261,7 +271,7 @@ This is a line after";
             const string expected = @"<ol><li>This is line 1</li><li>This is line 2
         <ol><li>This is line 2.1</li><li>This is line 2.2</li><li>This is line 2.3
     and it continues here</li></ol></li></ol>";
-            var actual = StmlParser.Parse(input, true).ToString();
+            var actual = StmlParser.Parse(input, false).ToString();
             //System.IO.File.WriteAllText(@"C:\temp\tests\simple.htm", actual);
             Assert.AreEqual(expected, actual);
         }
@@ -280,7 +290,22 @@ This is a line after";
     <font face=""ZapfDingbats""><big>&#9745;</big></font>This is option 2
     <hr/>    
     and it <font color=""red"">continues</font> here";
-            var actual = StmlParser.Parse(input, true).ToString();
+            var actual = StmlParser.Parse(input).ToString();
+            //System.IO.File.WriteAllText(@"C:\temp\tests\simple.htm", actual);
+            Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public void Can_parse_page_break()
+        {
+            const string input = @"Please select an option below:
+    [page-break]
+The line continues here
+";
+            const string expected = @"Please select an option below:
+    <div style=""page-break-after:always;""></div>
+The line continues here";
+            var actual = StmlParser.Parse(input).ToString();
             //System.IO.File.WriteAllText(@"C:\temp\tests\simple.htm", actual);
             Assert.AreEqual(expected, actual);
         }

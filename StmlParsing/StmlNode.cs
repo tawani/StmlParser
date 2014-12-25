@@ -8,21 +8,21 @@
     {
         public StmlNode Parent { get; set; }
         public StmlNode PrevNode { get; set; }
-        public StmlNode NextNode { get; set; }
+        public StmlNode NextNode { get; set; }        
     }
 
     public class TextElement : StmlNode
     {
-        private readonly string _text;
+        public string Text { get; set; }
 
         public TextElement(string text)
         {
-            _text = text ?? string.Empty;
+            Text = text ?? string.Empty;
         }
 
         public override string ToString()
         {
-            return _text;
+            return Text;
         }
     }
 
@@ -109,11 +109,6 @@
         {
         }
 
-        public void Add(string text)
-        {
-            base.Add(new TextElement(text));
-        }
-
         protected string GetInnerText()
         {
             var sb = new StringBuilder();
@@ -128,6 +123,17 @@
             return sb.ToString();
         }
 
+    }
+
+    public class BlockElement : TextContainerElement
+    {
+        public BlockElement(string tagName) : base(tagName)
+        {
+        }
+
+        public BlockElement(string nodeName, string tagName) : base(nodeName, tagName)
+        {
+        }
     }
 
     public class FontElement : TextContainerElement
@@ -173,6 +179,14 @@
         public override string ToString()
         {
             return string.Format("<font face=\"ZapfDingbats\">{0}</font>", Text);
+        }
+    }
+
+    public class PageBreakElement : StmlNode
+    {      
+        public override string ToString()
+        {
+            return "<div style=\"page-break-after:always;\"></div>";
         }
     }
 
@@ -263,11 +277,7 @@
         public override StmlNode Add(StmlNode node)
         {
             if (!(node is ListItemElement))
-            {
-                if (node is TextElement && node.ToString().Trim() == string.Empty)
-                    return null;
-                throw new Exception(string.Format("You cannot add a not of type '{0}' to a list container", node.GetType().Name));
-            }
+                return null;
             return base.Add(node);
         }
 
@@ -282,7 +292,7 @@
         }
     }
 
-    public class ListItemElement : ContainerElement
+    public class ListItemElement : BlockElement
     {
         public ListItemElement()
             : base("#","li")
