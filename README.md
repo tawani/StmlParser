@@ -1,7 +1,8 @@
 StmlParser
 ==========
 
-Simple Text Markup Language Parser is a custom HTML parser to convert user entered text into formatted HTML documents that can be converted to XSL-FO and eventually PDF or RTF.
+Simple Text Markup Language Parser is a custom HTML parser to convert user entered text into formatted XHTML documents that can be converted to XSL-FO and eventually PDF or RTF.
+It parses tags similar to <b><a href="http://en.wikipedia.org/wiki/BBCode">BBCode</a></b> tags and other extension tags relevant to generated [PDF] documents.
 
 Convert the following markup to HTML
 <h3>Input Text</h3>
